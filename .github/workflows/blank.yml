@@ -1,0 +1,60 @@
+name: Concurrency Test
+
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+
+
+jobs:
+  build:
+    name: Build dependencies
+    runs-on: ubuntu-22.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [1]
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: kong
+          POSTGRES_DB: kong
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 8
+
+    steps:
+    - name: pgbench
+      run: |
+        sudo apt update
+        sudo apt install postgresql-contrib -y
+        pgbench -Ukong -hlocalhost kong -i -s 5
+        pgbench -Ukong -hlocalhost kong -r -j2 -c4 -T60
+    - name: bench.sh
+      run: |
+        echo 'Starting Linux-Benchmark.sh...'
+        mkdir -p ~/tmp && cd ~/tmp
+        echo 'Downloading Geekbench v6.0.1...'
+        curl -O -L -# http://cdn.geekbench.com/Geekbench-6.0.1-Linux.tar.gz && tar -zxf Geekbench-*-Linux.tar.gz
+        chmod +x Geekbench-*-Linux.tar.gz
+        echo 'Downloading Bench.sh...'
+        curl -L -# -o bench.sh bench.sh
+        chmod +x bench.sh
+        echo 'Running Geekbench v6.0.1...'
+        ARCHITECTURE=$(uname -m)
+        if [ $ARCHITECTURE == "x86_64" ]; then
+          ./Geekbench-*-Linux/geekbench_x86_64
+        else
+          ./Geekbench-*-Linux/geekbench_x86_32
+        fi
+        echo 'Running Bench.sh...'
+        ./bench.sh
+        echo 'Running post benchmark cleanup...'
+        rm -f Geekbench-*-Linux.tar.gz
+        rm -rf Geekbench-*-Linux
+        rm -f Bench.sh
+        rm -f Linux-Benchmark.sh
+        echo 'Completed Linux-Benchmark.sh.'
+        exit 0
