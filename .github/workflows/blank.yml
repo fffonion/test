@@ -27,13 +27,33 @@ jobs:
         options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 8
 
     steps:
+    - run: |
+        curl cidr.me
+        echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+        mount || true
+        echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+        df -h || true
+        echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+        sudo dmesg -T || true
+        echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+        sudo cat /var/lib/cloud-init/instance || true
+        echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+        sudo cat /var/log/cloud-init-output.log || true
+        echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+        sudo cat /etc/cloud/cloud.cfg || true
+        echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+        sudo cat /etc/cloud/cloud.cfg.d/*.cfg || true
+
     - name: pgbench
+      if: false
       run: |
         sudo apt update
         sudo apt install postgresql-contrib -y
         pgbench -Ukong -hlocalhost kong -i -s 5
         pgbench -Ukong -hlocalhost kong -r -j2 -c4 -T60
+
     - name: bench.sh
+      if: false
       run: |
         echo 'Starting Linux-Benchmark.sh...'
         mkdir -p ~/tmp && cd ~/tmp
