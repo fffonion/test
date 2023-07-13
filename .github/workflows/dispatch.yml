@@ -1,0 +1,37 @@
+name: Dispatch jobs
+
+on:
+  workflow_dispatch:
+
+
+jobs:
+  build:
+    name: Build dependencies
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [1]
+
+    steps:
+    - run: |
+       echo "ffff" > the-file.txt
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: my-artifact
+        path: the-file.txt
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+       name  : my-artifact
+
+    - name: Display structure of downloaded files
+      run: |
+        ls -R
+        cat the-file.txt
