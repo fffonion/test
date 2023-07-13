@@ -1,0 +1,19 @@
+name: Reusable job
+on:
+  workflow_dispatch:
+
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+       name  : my-artifact
+
+    - name: Display structure of downloaded files
+      run: |
+        ls -R
+        cat the-file.txt
