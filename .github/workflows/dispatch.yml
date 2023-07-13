@@ -36,3 +36,7 @@ jobs:
       run: |
         ls -R
         cat the-file.txt
+        
+  test-reuse:
+    needs: build
+    uses: ./.github/workflows/reuse.yml
