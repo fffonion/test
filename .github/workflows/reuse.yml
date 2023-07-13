@@ -1,6 +1,6 @@
 name: Reusable job
 on:
-  workflow_dispatch:
+  workflow_call:
 
 
 jobs:
