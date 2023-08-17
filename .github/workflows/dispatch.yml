@@ -15,6 +15,10 @@ jobs:
         runner: [1]
 
     steps:
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      with:
+        detached: false
     - run: |
        echo "ffff" > the-file.txt
 
